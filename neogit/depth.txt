@@ -1,0 +1,12 @@
+.vscode
+y.c
+neogit
+y.exe
+test.txt
+hosna
+university.txt
+fatemeh
+salam.txt
+salam2.txt
+salam3
+name.txt
