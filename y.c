@@ -13,6 +13,35 @@
 #include <fcntl.h>
 #include <tchar.h>
 #define MAX_SENTENCES 100
+/*int static_error_check(char *file_path) {
+    FILE *formats = fopen(file_path, "r");
+    int flag = 0;
+    char *format = malloc(1000);
+    while (fgets(format, 1000, formats) != NULL) {
+        if (format[strlen(format) - 1] == '\n') {
+            format[strlen(format) - 1] = '\0';
+        }
+
+        if (strcmp(format, ".c") == 0 || strcmp(format, ".cpp") == 0) {
+            if (strstr(file_path, format) != NULL) {
+                flag = 1;
+                break;
+            }
+        }
+    }
+    if (flag == 0) {
+        return 2;
+    }
+    char *input = malloc(1000);
+    strcpy(input, "gcc ");
+    strcat(input, file_path);
+    strcat(input, " -o mamad > /dev/null 2>&1");
+    int status = system(input);
+    if (status != 0) {
+        return 0;
+    }
+    return 1;
+}*/
 
 int fileExists(const char *filePath) //
 {
@@ -48,9 +77,9 @@ int hasDot(char str[])
 
 void copyFolder(char source[], char destination[])
 {
-    char command[100];
-    sprintf(command, "xcopy /E /I /Y \"%s\" \"%s\"", source, destination);
-    system(command);
+    char input[100];
+    sprintf(input, "xcopy /E /I /Y \"%s\" \"%s\"", source, destination);
+    system(input);
 }
 
 int compareTimes(char *time1, char *time2)
@@ -111,7 +140,7 @@ void ReverseFile(FILE *file)
 {
     char currentDirectory[FILENAME_MAX];
     _fullpath(currentDirectory, ".", FILENAME_MAX);
-    strcat(currentDirectory, "\\neogit"); // way of neogit (where i make files to manage my neogit)
+    strcat(currentDirectory, "\\bizhbi"); // way of bizhbi (where i make files to manage my bizhbi)
     addBackslashes(currentDirectory);
     char temp_loog[100];
     strcpy(temp_loog, currentDirectory);
@@ -181,7 +210,30 @@ bool directoryExists(char *path)
     return S_ISDIR(info.st_mode);
 }
 
-void search(char user[200], char saved[200])
+int matchhh(char *pattern, char *text)
+{
+    // for null characters.
+    if (*pattern == '\0' && *text == '\0')
+    {
+        return 1;
+    }
+    // for *a;
+    if (*pattern == '*' && *(pattern + 1) != '\0' && *text == '\0')
+    {
+        return 0;
+    }
+    if (*pattern == *text)
+    {
+        return matchhh(pattern + 1, text + 1);
+    }
+    if (*pattern == '*')
+    {
+        return matchhh(pattern + 1, text) || matchhh(pattern, text + 1);
+    }
+    return 0;
+}
+
+void saparetor(char user[200], char saved[200])
 {
     int start = 0;
     int end = 0;
@@ -202,43 +254,6 @@ void search(char user[200], char saved[200])
         i++;
     }
     saved[i] = '\0';
-}
-
-int match(char *pattern, char *text)
-{
-    // for null characters.
-    if (*pattern == '\0' && *text == '\0')
-    {
-        return 1;
-    }
-    // for *a;
-    if (*pattern == '*' && *(pattern + 1) != '\0' && *text == '\0')
-    {
-        return 0;
-    }
-    if (*pattern == *text)
-    {
-        return match(pattern + 1, text + 1);
-    }
-    if (*pattern == '*')
-    {
-        return match(pattern + 1, text) || match(pattern, text + 1);
-    }
-    return 0;
-}
-
-void saperator_dot(char text[100][100]) // not used!
-{
-    for (int i = 0; i < 100; i++)
-    {
-        for (int j = 0; j < 100; j++)
-        {
-            if (text[i][j] == '.')
-            {
-                text[i][j] = '\0';
-            }
-        }
-    }
 }
 
 int token_del(char *name_of_files[1000], char user[100])
@@ -284,7 +299,7 @@ void reset_for_directory(const char *filename, char *name)
     char for_staging_file[FILENAME_MAX];
     char for_t_txt[FILENAME_MAX];
     _fullpath(currentDirectory, ".", FILENAME_MAX);
-    strcat(currentDirectory, "\\neogit");
+    strcat(currentDirectory, "\\bizhbi");
     strcpy(for_unstage_file, currentDirectory);
     strcat(for_unstage_file, "\\\\unstage.txt");
     strcpy(for_temp_for_dir, currentDirectory);
@@ -326,7 +341,7 @@ void reset_for_directory(const char *filename, char *name)
     file = fopen(filename, "r");
     temp_file = fopen(for_temp_for_dir, "a");
     unstaged = fopen(for_unstage_file, "a");
-    // int match = 0;
+    // int matchhh = 0;
     while ((entry = readdir(dir)) != NULL)
     {
         if ((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0))
@@ -372,12 +387,12 @@ void reset_for_directory(const char *filename, char *name)
 
     char line11[100];
     char line12[100];
-    int match;
+    int matchhh;
 
     while (fgets(line11, sizeof(line11), fp1))
     {
         line11[strcspn(line11, "\n")] = '\0';
-        match = 0;
+        matchhh = 0;
         rewind(fp2);
 
         while (fgets(line12, sizeof(line12), fp2))
@@ -385,12 +400,12 @@ void reset_for_directory(const char *filename, char *name)
             line12[strcspn(line12, "\n")] = '\0';
             if (strcmp(line11, line12) == 0)
             {
-                match = 1;
+                matchhh = 1;
                 break;
             }
         }
 
-        if (!match)
+        if (!matchhh)
         {
             fputs(line11, temp);
         }
@@ -431,7 +446,7 @@ void extractText(char *str, char userName[])
     userName[end - start] = '\0';
 }
 
-void searchWordInFile(char *filename, char *word, int saved[100])
+void saparetorWordInFile(char *filename, char *word, int saved[100])
 {
     FILE *file = fopen(filename, "r");
     char buffer[256];
@@ -455,7 +470,7 @@ void searchWordInFile(char *filename, char *word, int saved[100])
     fclose(file);
 }
 
-int searchWordInFile1(char *filename, char *word)
+int saparetorWordInFile1(char *filename, char *word)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -793,15 +808,15 @@ int main()
     _fullpath(currentDirectory, ".", FILENAME_MAX);
     strcpy(main_copy_of_exe_path_of_code, currentDirectory); // attention this is the way i have code's exe and area of user.
 
-    strcat(currentDirectory, "\\neogit"); // way of neogit (where i make files to manage my neogit)
+    strcat(currentDirectory, "\\bizhbi"); // way of bizhbi (where i make files to manage my bizhbi)
     addBackslashes(currentDirectory);
     strcpy(copy_cur_for_master, currentDirectory);
     strcpy(copy_currentDirectory, currentDirectory);
-    char command[200];
+    char input[200];
     int exists_config_name = 0;
     int exists_config_email = 0;
-    char command_saver_config_name[200];  // for username;
-    char command_saver_config_email[200]; // for email;
+    char saverrr[200];      // for username;
+    char saving_email[200]; // for email;
     char file_address[256][256];
     strcat(copy_currentDirectory, "\\global_config.txt");
     // be careful about the directory path.
@@ -944,20 +959,20 @@ int main()
 
     while (1)
     {
-        gets(command);
+        gets(input);
 
-        if (strncmp(command, "neogit init", 11) == 0)
+        if (strncmp(input, "bizhbi init", 11) == 0)
         {
             DIR *dir = opendir("."); // . is working directory.
             int flag = 0;
             char tmp_cwd[2000];
             char cwd[2000];
             bool exists = false;
-            char command[1000];
-            char hey[] = "neogit";
-            sprintf(command, "dir \"/%s\" /s", hey);
-            /*if(system(command)){
-             printf("neogit has been already exists in other folders.");
+            char input[1000];
+            char hey[] = "bizhbi";
+            sprintf(input, "dir \"/%s\" /s", hey);
+            /*if(system(input)){
+             printf("bizhbi has been already exists in other folders.");
              continue;
          }*/
             if (dir)
@@ -965,9 +980,9 @@ int main()
                 struct dirent *entry;
                 while ((entry = readdir(dir)) != NULL)
                 {
-                    if (strcmp(entry->d_name, "neogit") == 0)
+                    if (strcmp(entry->d_name, "bizhbi") == 0)
                     {
-                        printf("The directory 'neogit' exists in the root folder.\n");
+                        printf("The directory 'bizhbi' exists in the root folder.\n");
                         flag = 1;
                         exists = true;
                         break;
@@ -976,7 +991,7 @@ int main()
                 if (flag == 0)
                 {
 
-                    system("mkdir neogit");
+                    system("mkdir bizhbi");
                     printf("the intilization has been done succesfully");
                     continue;
                 }
@@ -1001,7 +1016,7 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit config global -username", 30) == 0)
+        else if (strncmp(input, "bizhbi config global -username", 30) == 0)
         {
 
             if (access(directoryPath, F_OK) != -1)
@@ -1010,11 +1025,11 @@ int main()
             }
             else
             {
-                search(command, command_saver_config_name);
+                saparetor(input, saverrr);
             }
         }
 
-        else if (strncmp(command, "neogit config global -email", 27) == 0)
+        else if (strncmp(input, "bizhbi config global -email", 27) == 0)
         {
 
             if (access(directoryPath, F_OK) != -1)
@@ -1023,12 +1038,12 @@ int main()
             }
             else
             {
-                search(command, command_saver_config_email);
+                saparetor(input, saving_email);
                 config_file = fopen(directoryPath, "w");
                 //
-                fprintf(config_file, "Username : %s \n", command_saver_config_name);
-                fprintf(config_file, "Useremail : %s \n", command_saver_config_email);
-                // extra info for other commands.
+                fprintf(config_file, "Username : %s \n", saverrr);
+                fprintf(config_file, "Useremail : %s \n", saving_email);
+                // extra info for other inputs.
                 fprintf(config_file, "last_commit_id : %d\n", 0);
                 fprintf(config_file, "current_commit_id : %d\n", 0);
                 fprintf(config_file, "branch : %s\n", "master");
@@ -1039,7 +1054,7 @@ int main()
             exists_config_email = 1;
         }
 
-        else if (strncmp(command, "neogit config -username", 23) == 0)
+        else if (strncmp(input, "bizhbi config -username", 23) == 0)
         {
             if (access(directoryPath, F_OK) != -1)
             {
@@ -1047,11 +1062,11 @@ int main()
             }
             else
             {
-                search(command, command_saver_config_name);
+                saparetor(input, saverrr);
             }
         }
 
-        else if (strncmp(command, "neogit config -email", 20) == 0)
+        else if (strncmp(input, "bizhbi config -email", 20) == 0)
         {
 
             if (access(directoryPath, F_OK) != -1)
@@ -1060,11 +1075,11 @@ int main()
             }
             else
             {
-                search(command, command_saver_config_email);
+                saparetor(input, saving_email);
                 config_file = fopen(copy_config, "a");
-                fprintf(config_file, "Username : %s \n", command_saver_config_name);
-                fprintf(config_file, "Useremail : %s \n", command_saver_config_email);
-                // extra info for other commands.
+                fprintf(config_file, "Username : %s \n", saverrr);
+                fprintf(config_file, "Useremail : %s \n", saving_email);
+                // extra info for other inputs.
                 fprintf(config_file, "last_commit_id : %d\n", 0);
                 fprintf(config_file, "current_commit_id : %d\n", 0);
                 fprintf(config_file, "branch : %s\n", "master");
@@ -1072,20 +1087,20 @@ int main()
                 printf("you set your name and email succsefully.");
 
                 FILE *info_saver = fopen(copy_info_saver, "w");
-                fprintf(info_saver, "Username : %s\n", command_saver_config_name);
-                fprintf(info_saver, "Useremail : %s\n", command_saver_config_email);
+                fprintf(info_saver, "Username : %s\n", saverrr);
+                fprintf(info_saver, "Useremail : %s\n", saving_email);
                 fclose(info_saver);
             }
         }
 
-        else if (strncmp(command, "neogit add", 10) == 0 && strstr(command, "*") == NULL && strncmp(command, "neogit add -f", 13) != 0 && strncmp(command, "neogit add depth", 16) != 0 && strncmp(command, "neogit add -redo", 16) != 0)
+        else if (strncmp(input, "bizhbi add", 10) == 0 && strstr(input, "*") == NULL && strncmp(input, "bizhbi add -f", 13) != 0 && strncmp(input, "bizhbi add depth", 16) != 0 && strncmp(input, "bizhbi add -redo", 16) != 0)
         {
 
             mkdir(copy_fstaging);
             char path[100];
             int found_1 = 0;
             int found_2 = 0;
-            search(command, path);
+            saparetor(input, path);
             if (access(path, F_OK) == 0)
             {
                 if (directoryExists(path))
@@ -1203,11 +1218,11 @@ int main()
             }
         }
 
-        else if (strstr(command, "*") != NULL)
+        else if (strstr(input, "*") != NULL)
         {
             mkdir(copy_fstaging);
             char file_star[1000];
-            search(command, file_star);
+            saparetor(input, file_star);
             int counter = 0;
             char names_of_files[100][100];
             char names_of_dir[100][100];
@@ -1236,7 +1251,7 @@ int main()
             {
                 if (strstr(names_of_files[i], ".") == NULL)
                 {
-                    if (match(file_star, names_of_files[i]))
+                    if (matchhh(file_star, names_of_files[i]))
                     {
                         char string[150];
                         strcpy(string, main_copy_of_exe_path_of_code);
@@ -1292,7 +1307,7 @@ int main()
                     char copy_name[100];
                     strcpy(copy_name, names_of_files[i]);
                     replaceDotWithNull(names_of_files[i]);
-                    if (match(file_star, names_of_files[i]))
+                    if (matchhh(file_star, names_of_files[i]))
                     {
                         char string[100];
                         strcpy(string, main_copy_of_exe_path_of_code);
@@ -1309,7 +1324,7 @@ int main()
                         bool flag = false;
                         for (int i = 0; i <= counter; i++)
                         {
-                            if (match(file_star, names_of_files[i]))
+                            if (matchhh(file_star, names_of_files[i]))
                             {
                                 staging = fopen(copy_staging, "a");
                                 if (staging == NULL)
@@ -1332,12 +1347,12 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit add -f", 13) == 0)
+        else if (strncmp(input, "bizhbi add -f", 13) == 0)
         {
             mkdir(copy_fstaging);
             char *name[1000];
             int flag_for_f = 0;
-            int y = token_del(name, command);
+            int y = token_del(name, input);
             for (int d = 0; d < y; d++)
             {
                 if (strstr(name[d], ".") != NULL)
@@ -1460,7 +1475,7 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit add depth", 16) == 0)
+        else if (strncmp(input, "bizhbi add depth", 16) == 0)
         {
             FILE *file;
             char line[100];
@@ -1499,24 +1514,24 @@ int main()
             closedir(dir); // for moving the pointer of pc.
             FILE *file1, *file2;
             char line1[100], line2[100];
-            int match = 0;
+            int matchhh = 0;
 
             file1 = fopen(cop_depth, "r");
             file2 = fopen(copy_staging, "r");
             while (fgets(line1, sizeof(line1), file1))
             {
                 rewind(file2); // for moving the pointer of pc.
-                match = 0;
+                matchhh = 0;
                 while (fgets(line2, sizeof(line2), file2))
                 {
                     if (strcmp(line1, line2) == 0)
                     {
-                        match = 1;
+                        matchhh = 1;
                         break;
                     }
                 }
 
-                if (match == 0)
+                if (matchhh == 0)
                 {
                     line1[strcspn(line1, "\n")] = '\0';
                     printf("Alert: %s is not on stage mode.\n", line1);
@@ -1529,11 +1544,11 @@ int main()
             remove(tem);
         }
 
-        else if (strncmp(command, "neogit reset", 12) == 0 && strcmp(command, "neogit reset -undo") != 0 && strncmp(command, "neogit reset -redo", 16) != 0)
+        else if (strncmp(input, "bizhbi reset", 12) == 0 && strcmp(input, "bizhbi reset -undo") != 0 && strncmp(input, "bizhbi reset -redo", 16) != 0)
         {
             mkdir(copy_unstage);
             char reset[200];
-            search(command, reset);
+            saparetor(input, reset);
             // const char *filename = "staging.txt";
             struct stat path_stat;
             if (stat(reset, &path_stat) == 0)
@@ -1604,7 +1619,7 @@ int main()
             }
         }
 
-        else if (strcmp(command, "neogit add -redo") == 0)
+        else if (strcmp(input, "bizhbi add -redo") == 0)
         {
             mkdir(copy_fstaging);
             char dest[100];
@@ -1649,7 +1664,7 @@ int main()
             remove(cop_unstage);
         }
 
-        else if (strcmp(command, "neogit reset -undo") == 0)
+        else if (strcmp(input, "bizhbi reset -undo") == 0)
         {
             mkdir(copy_unstage);
             mkdir(copy_staging);
@@ -1765,7 +1780,7 @@ int main()
             fclose(hi);
         }
 
-        else if (strncmp(command, "neogit status", 13) == 0)
+        else if (strncmp(input, "bizhbi status", 13) == 0)
         {
             DIR *dir_s;
             struct dirent *entry_s;
@@ -1888,15 +1903,15 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit commit -m", 16) == 0)
+        else if (strncmp(input, "bizhbi commit -m", 16) == 0)
         {
             mkdir(copy_commi);
             if (access(directoryPath, F_OK) != -1)
             {
                 char commit_message[1000];
-                if (strstr(command, "\"") != NULL)
+                if (strstr(input, "\"") != NULL)
                 {
-                    search(command, commit_message);
+                    saparetor(input, commit_message);
                     int len = strlen(commit_message);
                     if (len >= 72)
                     {
@@ -2045,7 +2060,7 @@ int main()
                     char *extract[1000];
                     int index = 0;
                     char delimeter[] = " ";
-                    char *ptr = strtok(command, delimeter);
+                    char *ptr = strtok(input, delimeter);
                     while (ptr != NULL)
                     {
                         extract[index] = ptr;
@@ -2203,10 +2218,10 @@ int main()
             else
             {
                 char commit_message[1000];
-                if (strstr(command, "\"") != NULL)
+                if (strstr(input, "\"") != NULL)
                 {
 
-                    search(command, commit_message);
+                    saparetor(input, commit_message);
                     int len = strlen(commit_message);
                     if (len >= 72)
                     {
@@ -2377,7 +2392,7 @@ int main()
                     char *extract[1000];
                     int index = 0;
                     char delimeter[] = " ";
-                    char *ptr = strtok(command, delimeter);
+                    char *ptr = strtok(input, delimeter);
                     while (ptr != NULL)
                     {
                         extract[index] = ptr;
@@ -2558,15 +2573,15 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit set -m", 13) == 0)
+        else if (strncmp(input, "bizhbi set -m", 13) == 0)
         {
             FILE *shortcuts = fopen(shortt, "a");
-            extractText(command, shortcut_message);
+            extractText(input, shortcut_message);
             // printf("%s",shortcut_message);
             char *extract[1000];
             int index = 0;
             char delimeter[] = " ";
-            char *ptr = strtok(command, delimeter);
+            char *ptr = strtok(input, delimeter);
             while (ptr != NULL)
             {
                 extract[index] = ptr;
@@ -2580,12 +2595,12 @@ int main()
             fclose(shortcuts);
         }
 
-        else if (strncmp(command, "neogit commit -s", 16) == 0)
+        else if (strncmp(input, "bizhbi commit -s", 16) == 0)
         {
             char *extract_1[1000];
             int index_1 = 0;
             char delimeter[] = " ";
-            char *ptr = strtok(command, delimeter);
+            char *ptr = strtok(input, delimeter);
             while (ptr != NULL)
             {
                 extract_1[index_1] = ptr;
@@ -2996,14 +3011,14 @@ int main()
             fclose(shorts);
         }
 
-        else if (strncmp(command, "neogit replace -m", 17) == 0)
+        else if (strncmp(input, "bizhbi replace -m", 17) == 0)
         {
             char saved[100];
-            extractText(command, saved);
+            extractText(input, saved);
             char *extract[1000];
             int index = 0;
             char delimeter[] = " ";
-            char *ptr = strtok(command, delimeter);
+            char *ptr = strtok(input, delimeter);
             while (ptr != NULL)
             {
                 extract[index] = ptr;
@@ -3057,12 +3072,12 @@ int main()
             fclose(cf);
         }
 
-        else if (strncmp(command, "neogit remove -s", 16) == 0)
+        else if (strncmp(input, "bizhbi remove -s", 16) == 0)
         {
             char *extract[1000];
             int index = 0;
             char delimeter[] = " ";
-            char *ptr = strtok(command, delimeter);
+            char *ptr = strtok(input, delimeter);
             while (ptr != NULL)
             {
                 extract[index] = ptr;
@@ -3120,28 +3135,28 @@ int main()
             fclose(delet);
         }
 
-        else if (strcmp("neogit log", command) == 0)
+        else if (strcmp("bizhbi log", input) == 0)
         {
             FILE *message = fopen(messsage, "r");
             printSentencesInReverseOrder(message);
             fclose(message);
         }
 
-        else if (strncmp("neogit log -n", command, 13) == 0)
+        else if (strncmp("bizhbi log -n", input, 13) == 0)
         {
             char number[100];
             char line[100];
-            search(command, number);
+            saparetor(input, number);
             int count = atoi(number);
             FILE *message = fopen(messsage, "r");
             reverseForLog(message, count);
             fclose(message);
         }
 
-        else if (strncmp("neogit log -author", command, 18) == 0)
+        else if (strncmp("bizhbi log -author", input, 18) == 0)
         {
             char user_name[200];
-            search(command, user_name);
+            saparetor(input, user_name);
             user_name[strlen(user_name)] = '\0';
             FILE *message = fopen(messsage, "r");
             ReverseFile(message);
@@ -3176,11 +3191,11 @@ int main()
             fclose(temp_log);
         }
 
-        else if (strncmp("neogit log -since", command, 17) == 0)
+        else if (strncmp("bizhbi log -since", input, 17) == 0)
         {
             char time[100];
             char *token;
-            search(command, time);
+            saparetor(input, time);
             char line3[100];
             char *extract[100];
             int line_c = 0;
@@ -3208,11 +3223,11 @@ int main()
             fclose(temp_log);
         }
 
-        else if (strncmp("neogit log -before", command, 18) == 0)
+        else if (strncmp("bizhbi log -before", input, 18) == 0)
         {
             char time[100];
             char *token;
-            search(command, time);
+            saparetor(input, time);
             char line3[100];
             char *extract[100];
             int line_c = 0;
@@ -3239,7 +3254,7 @@ int main()
             }
         }
 
-        else if (strcmp("neogit list branch", command) == 0)
+        else if (strcmp("bizhbi list branch", input) == 0)
         {
             char line[100];
             branch = fopen(copy_branch, "r");
@@ -3250,10 +3265,10 @@ int main()
             fclose(branch);
         }
 
-        else if (strncmp("neogit branch", command, 13) == 0)
+        else if (strncmp("bizhbi branch", input, 13) == 0)
         {
             char branch_name[100];
-            search(command, branch_name);
+            saparetor(input, branch_name);
             mkdir(copy10);
             FILE *ch = fopen(copy_branch, "r");
             char line0[100];
@@ -3466,7 +3481,7 @@ int main()
                 DIR *dir;
                 char copy_c[100];
                 strcpy(copy_c, currentDirectory);
-                strcat(copy_c, "\\commit"); // "F:\GitHub\FOP-Project-Git\output\neogit\commit"
+                strcat(copy_c, "\\commit"); // "F:\GitHub\FOP-Project-Git\output\bizhbi\commit"
                 char copy_com[100];
                 strcpy(copy_com, copy_c);
                 strcat(copy_com, "\\*");
@@ -3536,10 +3551,10 @@ int main()
             }
         }
 
-        else if (strncmp("neogit log -branch", command, 18) == 0)
+        else if (strncmp("bizhbi log -branch", input, 18) == 0)
         {
             char branch_name[100];
-            search(command, branch_name);
+            saparetor(input, branch_name);
             FILE *branch = fopen(copy_branch, "r");
             char line[100];
             int flag = 0;
@@ -3598,13 +3613,13 @@ int main()
             fclose(temp_log);
         }
 
-        else if (strncmp("neogit log -search", command, 18) == 0)
+        else if (strncmp("bizhbi log -saparetor", input, 18) == 0)
         {
             char hint[100];
-            search(command, hint);
+            saparetor(input, hint);
             int saver[100];
             char *file_name = temp_loog;
-            searchWordInFile(file_name, hint, saver);
+            saparetorWordInFile(file_name, hint, saver);
             FILE *log = fopen(temp_loog, "r");
             char line[100];
             int liner = 1;
@@ -3632,10 +3647,10 @@ int main()
             fclose(log);
         }
 
-        else if (strncmp("neogit checkout", command, 15) == 0 && strncmp("neogit checkout -id", command, 17) != 0 && strcmp("neogit checkout HEAD", command) != 0)
+        else if (strncmp("bizhbi checkout", input, 15) == 0 && strncmp("bizhbi checkout -id", input, 17) != 0 && strcmp("bizhbi checkout HEAD", input) != 0)
         {
             char branch_name[100];
-            search(command, branch_name);
+            saparetor(input, branch_name);
             FILE *branch = fopen(copy_branch, "r");
             char line[100];
             int flag = 0;
@@ -3681,10 +3696,10 @@ int main()
             }
         }
 
-        else if (strncmp("neogit checkout -id", command, 17) == 0 && strcmp("neogit checkout HEAD", command) != 0)
+        else if (strncmp("bizhbi checkout -id", input, 17) == 0 && strcmp("bizhbi checkout HEAD", input) != 0)
         {
             char id[100];
-            search(command, id);
+            saparetor(input, id);
             char copy_un[100];
             strcpy(copy_un, currentDirectory);
             strcat(copy_un, "\\unstage");
@@ -3712,7 +3727,7 @@ int main()
             }
         }
 
-        else if (strcmp("neogit checkout HEAD", command) == 0)
+        else if (strcmp("bizhbi checkout HEAD", input) == 0)
         {
             char line[100];
             FILE *f = fopen(copy_head, "r");
@@ -3724,10 +3739,10 @@ int main()
 
         // fashe 2
         // wm = without message
-        else if (strncmp(command, "neogit revert whm", 17) == 0)
+        else if (strncmp(input, "bizhbi revert whm", 17) == 0)
         {
             char id[100];
-            search(command, id);
+            saparetor(input, id);
             char copy_un[100];
             strcpy(copy_un, currentDirectory);
             strcat(copy_un, "\\unstage");
@@ -4066,16 +4081,16 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit revert m", 15) == 0)
+        else if (strncmp(input, "bizhbi revert m", 15) == 0)
         {
             char *op[1000];
             int count = 0;
             char id[100];
-            tokenizeStrings(command, op, &count);
+            tokenizeStrings(input, op, &count);
             char messagee[100];
             strcpy(messagee, op[0]);
             strcpy(id, op[1]);
-            // neogit revert <hello hi> "1"
+            // bizhbi revert <hello hi> "1"
             char copy_un[100];
             strcpy(copy_un, currentDirectory);
             strcat(copy_un, "\\unstage");
@@ -4384,12 +4399,12 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit revert -n", 16) == 0)
+        else if (strncmp(input, "bizhbi revert -n", 16) == 0)
         {
             char id[100];
-            if (strstr(command, "\"") != NULL)
+            if (strstr(input, "\"") != NULL)
             {
-                search(command, id);
+                saparetor(input, id);
                 char copy_un[100];
                 strcpy(copy_un, currentDirectory);
                 strcat(copy_un, "\\unstage");
@@ -4463,7 +4478,7 @@ int main()
             }
         }
 
-        else if (strcmp(command, "neogit pre-commit") == 0)
+        else if (strcmp(input, "bizhbi pre-commit") == 0)
         {
 
             char hook[100];
@@ -4490,7 +4505,7 @@ int main()
                     strcpy(copy_s, copy_fstaging);
                     strcat(copy_s, "\\\\");
                     strcat(copy_s, entry->d_name);
-                    printf("%s\n", entry->d_name);
+                    // printf("%s\n", entry->d_name);
 
                     // codes for calling functions.
                     char copy_hook[100];
@@ -4500,6 +4515,7 @@ int main()
                     char lines[100];
                     while (fgets(lines, sizeof(lines), hello) != NULL)
                     {
+                        // printf("HI");
                         lines[strcspn(lines, "\n")] = '\0';
                         if (strcmp(lines, "character-limit") == 0)
                         {
@@ -4539,10 +4555,10 @@ int main()
             closedir(dir);
         }
 
-        else if (strncmp(command, "neogit pre-commit add hook", 26) == 0)
+        else if (strncmp(input, "bizhbi pre-commit add hook", 26) == 0)
         {
             char hook[100];
-            search(command, hook);
+            saparetor(input, hook);
             char copy_hook[100];
             strcpy(copy_hook, currentDirectory);
             strcat(copy_hook, "\\\\hook.txt");
@@ -4551,7 +4567,7 @@ int main()
             fclose(h);
         }
 
-        else if (strncmp(command, "neogit pre-commit applied hooks", 31) == 0)
+        else if (strncmp(input, "bizhbi pre-commit applied hooks", 31) == 0)
         {
 
             char copy_hook[100];
@@ -4566,7 +4582,7 @@ int main()
             fclose(h);
         }
 
-        else if (strncmp(command, "neogit pre-commit remove hook", 29) == 0)
+        else if (strncmp(input, "bizhbi pre-commit remove hook", 29) == 0)
         {
             char hook[100];
             FILE *f = fopen(temp_c, "w");
@@ -4574,7 +4590,7 @@ int main()
             strcpy(copy_hook, currentDirectory);
             strcat(copy_hook, "\\\\hook.txt");
             FILE *h = fopen(copy_hook, "r");
-            search(command, hook);
+            saparetor(input, hook);
             char line[100];
             while (fgets(line, sizeof(line), h) != NULL)
             {
@@ -4591,12 +4607,12 @@ int main()
             fclose(f);
         }
 
-        else if (strncmp("neogit pre-commit -f", command, 20) == 0)
+        else if (strncmp("bizhbi pre-commit -f", input, 20) == 0)
         { // error staging nemide
             char *res[1000];
             char a[100][100];
             int flag_error_for_not_exist = 0;
-            int can = token_del(res, command);
+            int can = token_del(res, input);
             for (int d = 0; d < can; d++)
             {
                 if (fileExists(res[d]))
@@ -4645,7 +4661,7 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit pre-commit hooks list", 28) == 0)
+        else if (strncmp(input, "bizhbi pre-commit hooks list", 28) == 0)
         {
             printf("%s\n", "todo-check");
             printf("%s\n", "eof-blank-space");
@@ -4658,7 +4674,7 @@ int main()
             printf("%s\n", "time-limit");
         }
 
-        else if (strncmp(command, "neogit grep -f", 14) == 0) // neogit grep -f <E:\Git_proj\neogit\unstage\hi.txt><hi>
+        else if (strncmp(input, "bizhbi grep -f", 14) == 0) // bizhbi grep -f <E:\Git_proj\bizhbi\unstage\hi.txt><hi>
         {
             char *add_res[100];
             int save[1000];
@@ -4666,19 +4682,12 @@ int main()
             int base = 0;
             int ll = 1;
             int ondex = 0;
-            token_del(add_res, command);
-            // printf("%s\n", add_res[0]);
-            // printf("%s\n", add_res[1]);
+            token_del(add_res, input);
             FILE *k = fopen(add_res[0], "r");
             char line[100];
             while (fgets((line), 100, k) != NULL)
             {
                 line[strcspn(line, "\n")] = '\0';
-                /* if (strstr(line, add_res[1]) != NULL)
-                 {
-                     save[ondex] = ll;
-                     ondex++;
-                 }*/
 
                 char *extract[1000];
                 int index = 0;
@@ -4713,7 +4722,7 @@ int main()
             }
         }
 
-        else if (strncmp(command, "neogit grep -c", 14) == 0) // neogit grep -c <filename><commit_id><word>
+        else if (strncmp(input, "bizhbi grep -c", 14) == 0) // bizhbi grep -c <filename><commit_id><word>
         {
             char b[100][100];
             int base = 0;
@@ -4721,7 +4730,7 @@ int main()
             int save[1000];
             int ll = 1;
             int ondex = 0;
-            token_del(add_res, command);
+            token_del(add_res, input);
             // printf("%s\n", add_res[0]);
             // printf("%s\n", add_res[1]);
             // printf("%s\n", add_res[2]);
